@@ -28,7 +28,7 @@
 /vis/verbose errors
 #
 # Draw geometry:
-/vis/drawVolume
+/vis/drawVolume worlds
 #
 #
 # Specify style (surface, wireframe, auxiliary edges,...)
@@ -42,6 +42,7 @@
 /vis/modeling/trajectories/create/drawByCharge
 /vis/modeling/trajectories/drawByCharge-0/default/setDrawStepPts true
 /vis/modeling/trajectories/drawByCharge-0/default/setStepPtsSize 2
+#/vis/modeling/trajectories/drawByCharge-0/setRGBA e- 1 0 0 1
 # (if too many tracks cause core dump => /tracking/storeTrajectory 0)
 #
 # Draw hits at end of event:
@@ -72,12 +73,10 @@
 /vis/scene/add/scale   # Simple scale line
 /vis/scene/add/axes   0 0 0 1 m # Simple axes: x=red, y=green, z=blue.
 /vis/scene/add/eventID # Drawn at end of event
-/vis/scene/add/date    # Date stamp
 #
 # Frame
 /vis/set/colour red
 /vis/set/lineWidth 2
-/vis/scene/add/frame   # Simple frame around the view
 #/vis/set/colour        # Revert to default colour (white)
 /vis/set/lineWidth     # Revert to default line width (1.)
 #
@@ -86,8 +85,6 @@
 #
 # To get nice view
 # Make the "World" box invisible
-/vis/geometry/set/visibility worldLogical 0 false
-/vis/geometry/set/visibility phantomLogical 0 false
 /vis/viewer/set/style surface
 /vis/viewer/set/hiddenMarker true
 /vis/viewer/set/background 0 0 0 1

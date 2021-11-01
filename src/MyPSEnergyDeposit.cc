@@ -23,61 +23,23 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
+// MyPSEnergyDeposit.cc
+// \file   MRCP_GEANT4/External/src/MyPSEnergyDeposit.cc
+// \author Haegin Han
 //
-/// \file DetectorConstruction.cc
-/// \brief Implementation of the DetectorConstruction class
 
-#include "DetectorConstruction.hh"
+#include "MyPSEnergyDeposit.hh"
 
-#include "G4RunManager.hh"
-#include "G4NistManager.hh"
-#include "G4LogicalVolume.hh"
-#include "G4PVPlacement.hh"
-#include "G4SystemOfUnits.hh"
-#include "G4VisAttributes.hh"
+MyPSEnergyDeposit::MyPSEnergyDeposit(G4String name)
+  :G4PSEnergyDeposit(name)
+{}
 
-#include "G4Box.hh"
+MyPSEnergyDeposit::~MyPSEnergyDeposit()
+{}
 
-
-
-DetectorConstruction::DetectorConstruction()
-: G4VUserDetectorConstruction(),
-  lv_world(0), pv_world(0)
-{ }
-
-
-
-DetectorConstruction::~DetectorConstruction()
-{ }
-
-
-
-G4VPhysicalVolume* DetectorConstruction::Construct()
+G4int MyPSEnergyDeposit::GetIndex(G4Step* aStep)
 {
-	SetupWorldGeometry();
-
-//	G4VSolid* sol_Box = new G4Box("sol_Box", 0.5*m, 0.5*m, 0.5*m);
-//	G4LogicalVolume* lv_Box = new G4LogicalVolume(sol_Box, G4NistManager::Instance()->FindOrBuildMaterial("G4_WATER"), "lv_Box");
-//	lv_Box->SetVisAttributes(new G4VisAttributes(G4Colour(1.0,1.0,0.0,0.5)));
-//	new G4PVPlacement(0, G4ThreeVector(), lv_Box, "pv_Box", lv_world, false, 10);
-
-
-  return pv_world;
+	// return the organ ID (= material index)
+	G4int copyNo = aStep->GetPreStepPoint()->GetTouchable()->GetCopyNumber();
+  return copyNo;
 }
-
-void DetectorConstruction::SetupWorldGeometry()
-{
-	// Define the world box (size: 10*10*5 m3)
-	G4double world_halfX = 5. * m;
-	G4double world_halfY = 5. * m;
-	G4double world_halfZ = 2.5 * m;
-
-	G4VSolid* sol_world = new G4Box("sol_world", world_halfX, world_halfY, world_halfZ);
-	lv_world = new G4LogicalVolume(sol_world, G4NistManager::Instance()->FindOrBuildMaterial("G4_AIR"), "lv_world");
-	pv_world = new G4PVPlacement(0, G4ThreeVector(), lv_world, "pv_world", 0, false, 0, false);
-	G4VisAttributes* va_world = new G4VisAttributes(G4Colour(1.0,1.0,1.0));
-	va_world->SetForceWireframe(true);
-	lv_world->SetVisAttributes(va_world);
-}
-
-

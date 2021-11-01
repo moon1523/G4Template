@@ -24,60 +24,45 @@
 // ********************************************************************
 //
 //
-/// \file DetectorConstruction.cc
-/// \brief Implementation of the DetectorConstruction class
+/// \file MySD.hh
+/// \brief Definition of the MySD class
 
-#include "DetectorConstruction.hh"
+#ifndef MySD_h
+#define MySD_h 1
 
-#include "G4RunManager.hh"
-#include "G4NistManager.hh"
-#include "G4LogicalVolume.hh"
-#include "G4PVPlacement.hh"
-#include "G4SystemOfUnits.hh"
-#include "G4VisAttributes.hh"
+#include "G4VSensitiveDetector.hh"
 
-#include "G4Box.hh"
+#include "MyHit.hh"
 
+#include <vector>
 
-
-DetectorConstruction::DetectorConstruction()
-: G4VUserDetectorConstruction(),
-  lv_world(0), pv_world(0)
-{ }
+class G4Step;
+class G4HCofThisEvent;
 
 
 
-DetectorConstruction::~DetectorConstruction()
-{ }
+/// My sensitive detector class
+///
+/// The hits are accounted in hits in ProcessHits() function which is called
+/// by Geant4 kernel at each step. A hit is created with each step with non zero
+/// energy deposit.
 
-
-
-G4VPhysicalVolume* DetectorConstruction::Construct()
+class MySD : public G4VSensitiveDetector
 {
-	SetupWorldGeometry();
+  public:
+    MySD(const G4String& name, const G4String& hitsCollectionName);
+    virtual ~MySD();
 
-//	G4VSolid* sol_Box = new G4Box("sol_Box", 0.5*m, 0.5*m, 0.5*m);
-//	G4LogicalVolume* lv_Box = new G4LogicalVolume(sol_Box, G4NistManager::Instance()->FindOrBuildMaterial("G4_WATER"), "lv_Box");
-//	lv_Box->SetVisAttributes(new G4VisAttributes(G4Colour(1.0,1.0,0.0,0.5)));
-//	new G4PVPlacement(0, G4ThreeVector(), lv_Box, "pv_Box", lv_world, false, 10);
+    // methods from base class
+    virtual void   Initialize(G4HCofThisEvent* hitCollection);
+    virtual G4bool ProcessHits(G4Step* step, G4TouchableHistory* history);
+    virtual void   EndOfEvent(G4HCofThisEvent* hitCollection);
 
+  private:
+    MyHitsCollection* fHitsCollection;
 
-  return pv_world;
-}
-
-void DetectorConstruction::SetupWorldGeometry()
-{
-	// Define the world box (size: 10*10*5 m3)
-	G4double world_halfX = 5. * m;
-	G4double world_halfY = 5. * m;
-	G4double world_halfZ = 2.5 * m;
-
-	G4VSolid* sol_world = new G4Box("sol_world", world_halfX, world_halfY, world_halfZ);
-	lv_world = new G4LogicalVolume(sol_world, G4NistManager::Instance()->FindOrBuildMaterial("G4_AIR"), "lv_world");
-	pv_world = new G4PVPlacement(0, G4ThreeVector(), lv_world, "pv_world", 0, false, 0, false);
-	G4VisAttributes* va_world = new G4VisAttributes(G4Colour(1.0,1.0,1.0));
-	va_world->SetForceWireframe(true);
-	lv_world->SetVisAttributes(va_world);
-}
+};
 
 
+
+#endif

@@ -42,7 +42,7 @@
 
 RunAction::RunAction()
 : G4UserRunAction(),
-  numOfEvent(0)
+  numOfEvent(0), fRun(0)
 { 
 
 }
@@ -51,6 +51,11 @@ RunAction::RunAction()
 RunAction::~RunAction()
 {}
 
+G4Run* RunAction::GenerateRun()
+{
+	fRun = new Run();
+	return fRun;
+}
 
 void RunAction::BeginOfRunAction(const G4Run* run)
 { 

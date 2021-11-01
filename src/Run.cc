@@ -23,61 +23,67 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
+
+#include "Run.hh"
+
+Run::Run()
+:G4Run()
+{
+//	G4cout << "Run() is invoked" << G4endl;
+
+//	fCollID_eDep = G4SDManager::GetSDMpointer()->GetCollectionID("mySD/myHitsCollection");
+
+
+}
+
+Run::~Run()
+{
+	edepMap.clear();
+
+}
+
+void Run::RecordEvent(const G4Event* event)
+{
+//	G4HCofThisEvent* hce = event->GetHCofThisEvent();
+//	G4VHitsCollection* hc = hce->GetHC(fCollID_eDep);
+//		G4cout << ">> 2) Hits Collection ----" << G4endl;
+//		G4cout << hc->GetColID() << G4endl;
+//		G4cout << hc->GetName() << G4endl;
+//		G4cout << hc->GetSDname() << G4endl;
+//		G4cout << "hc size: " << hc->GetSize() << G4endl;
 //
-/// \file DetectorConstruction.cc
-/// \brief Implementation of the DetectorConstruction class
-
-#include "DetectorConstruction.hh"
-
-#include "G4RunManager.hh"
-#include "G4NistManager.hh"
-#include "G4LogicalVolume.hh"
-#include "G4PVPlacement.hh"
-#include "G4SystemOfUnits.hh"
-#include "G4VisAttributes.hh"
-
-#include "G4Box.hh"
-
-
-
-DetectorConstruction::DetectorConstruction()
-: G4VUserDetectorConstruction(),
-  lv_world(0), pv_world(0)
-{ }
-
-
-
-DetectorConstruction::~DetectorConstruction()
-{ }
-
-
-
-G4VPhysicalVolume* DetectorConstruction::Construct()
-{
-	SetupWorldGeometry();
-
-//	G4VSolid* sol_Box = new G4Box("sol_Box", 0.5*m, 0.5*m, 0.5*m);
-//	G4LogicalVolume* lv_Box = new G4LogicalVolume(sol_Box, G4NistManager::Instance()->FindOrBuildMaterial("G4_WATER"), "lv_Box");
-//	lv_Box->SetVisAttributes(new G4VisAttributes(G4Colour(1.0,1.0,0.0,0.5)));
-//	new G4PVPlacement(0, G4ThreeVector(), lv_Box, "pv_Box", lv_world, false, 10);
-
-
-  return pv_world;
+//
+//	G4THitsMap<G4double>* evtMap =
+//			static_cast<G4THitsMap<G4double>*>(hc);
+//	auto hitsMap = *evtMap->GetMap();
+//
+//	G4cout << "hitsMap.size(): " << hitsMap.size() << G4endl;
+//
+//
+//
+//	for (auto itr:hitsMap) {
+////		edepMap[itr.first].first += *itr.second;
+////		edepMap[itr.first].first += (*itr.second) * (*itr.second);
+//		G4cout << "@@@" << itr.first << " " << *itr.second << G4endl;
+//	}
+	G4Run::RecordEvent(event);
 }
 
-void DetectorConstruction::SetupWorldGeometry()
+void Run::Merge(const G4Run* run)
 {
-	// Define the world box (size: 10*10*5 m3)
-	G4double world_halfX = 5. * m;
-	G4double world_halfY = 5. * m;
-	G4double world_halfZ = 2.5 * m;
 
-	G4VSolid* sol_world = new G4Box("sol_world", world_halfX, world_halfY, world_halfZ);
-	lv_world = new G4LogicalVolume(sol_world, G4NistManager::Instance()->FindOrBuildMaterial("G4_AIR"), "lv_world");
-	pv_world = new G4PVPlacement(0, G4ThreeVector(), lv_world, "pv_world", 0, false, 0, false);
-	G4VisAttributes* va_world = new G4VisAttributes(G4Colour(1.0,1.0,1.0));
-	va_world->SetForceWireframe(true);
-	lv_world->SetVisAttributes(va_world);
+
+
+	G4Run::Merge(run);
 }
+
+
+
+
+
+
+
+
+
 
 

@@ -1,5 +1,6 @@
 # Set the verbose
-/run/verbose 2
+#/run/verbose 2
+/tracking/verbose 2
 
 # Set the number of threads for multi-threading mode
 /run/numberOfThreads  1
@@ -10,4 +11,4 @@
 # external irradiation
 /gun/particle gamma
 /gun/energy   1 MeV
-/run/beamOn   100000
+/run/beamOn   20

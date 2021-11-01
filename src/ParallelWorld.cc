@@ -24,60 +24,73 @@
 // ********************************************************************
 //
 //
-/// \file DetectorConstruction.cc
-/// \brief Implementation of the DetectorConstruction class
+#include "ParallelWorld.hh"
 
-#include "DetectorConstruction.hh"
-
-#include "G4RunManager.hh"
-#include "G4NistManager.hh"
 #include "G4LogicalVolume.hh"
 #include "G4PVPlacement.hh"
-#include "G4SystemOfUnits.hh"
 #include "G4VisAttributes.hh"
-
+#include "G4SystemOfUnits.hh"
+#include "G4Material.hh"
+#include "G4NistManager.hh"
 #include "G4Box.hh"
 
-
-
-DetectorConstruction::DetectorConstruction()
-: G4VUserDetectorConstruction(),
-  lv_world(0), pv_world(0)
-{ }
-
-
-
-DetectorConstruction::~DetectorConstruction()
-{ }
+#include "G4SDManager.hh"
+#include "G4MultiFunctionalDetector.hh"
+#include "G4VPrimitiveScorer.hh"
+#include "MyPSEnergyDeposit.hh"
+#include "MySD.hh"
 
 
 
-G4VPhysicalVolume* DetectorConstruction::Construct()
+ParallelWorld::ParallelWorld(G4String parallelWorldName)
+:G4VUserParallelWorld(parallelWorldName),
+ fConstructed(false), lv_pBox1(0), lv_pBox2(0)
 {
-	SetupWorldGeometry();
-
-//	G4VSolid* sol_Box = new G4Box("sol_Box", 0.5*m, 0.5*m, 0.5*m);
-//	G4LogicalVolume* lv_Box = new G4LogicalVolume(sol_Box, G4NistManager::Instance()->FindOrBuildMaterial("G4_WATER"), "lv_Box");
-//	lv_Box->SetVisAttributes(new G4VisAttributes(G4Colour(1.0,1.0,0.0,0.5)));
-//	new G4PVPlacement(0, G4ThreeVector(), lv_Box, "pv_Box", lv_world, false, 10);
-
-
-  return pv_world;
 }
 
-void DetectorConstruction::SetupWorldGeometry()
+ParallelWorld::~ParallelWorld()
 {
-	// Define the world box (size: 10*10*5 m3)
-	G4double world_halfX = 5. * m;
-	G4double world_halfY = 5. * m;
-	G4double world_halfZ = 2.5 * m;
 
-	G4VSolid* sol_world = new G4Box("sol_world", world_halfX, world_halfY, world_halfZ);
-	lv_world = new G4LogicalVolume(sol_world, G4NistManager::Instance()->FindOrBuildMaterial("G4_AIR"), "lv_world");
-	pv_world = new G4PVPlacement(0, G4ThreeVector(), lv_world, "pv_world", 0, false, 0, false);
-	G4VisAttributes* va_world = new G4VisAttributes(G4Colour(1.0,1.0,1.0));
-	va_world->SetForceWireframe(true);
-	lv_world->SetVisAttributes(va_world);
 }
+
+void ParallelWorld::Construct()
+{
+	if (fConstructed) return;
+	fConstructed = true;
+
+	G4VPhysicalVolume* ghost_world = GetWorld();
+	G4LogicalVolume* lv_pWorld = ghost_world->GetLogicalVolume();
+
+	G4VSolid* sol_pBox = new G4Box("sol_pBox", 0.5*m, 0.5*m, 0.5*m);
+    lv_pBox1 = new G4LogicalVolume(sol_pBox, G4NistManager::Instance()->FindOrBuildMaterial("G4_WATER"), "lv_pBox1");
+//    lv_pBox2 = new G4LogicalVolume(sol_pBox, G4NistManager::Instance()->FindOrBuildMaterial("G4_WATER"), "lv_pBox2");
+	new G4PVPlacement(0, G4ThreeVector(0,0,1.0*m), lv_pBox1, "pv_pBox", lv_pWorld, false, 10);
+	G4VisAttributes* va_pBox = new G4VisAttributes(G4Colour(1.0,1.0,0.0,1.0));
+	va_pBox->SetForceWireframe(true);
+	lv_pBox1->SetVisAttributes(va_pBox);
+}
+
+void ParallelWorld::ConstructSD()
+{
+	G4SDManager* pSDman = G4SDManager::GetSDMpointer();
+	MySD* mySD = new MySD("mySD", "myHitsCollection");
+	pSDman->AddNewDetector( mySD );
+	SetSensitiveDetector(lv_pBox1, mySD);
+
+//	G4MultiFunctionalDetector* MFDet = new G4MultiFunctionalDetector("pBoxSD");
+//	pSDman->AddNewDetector( MFDet );
+//	MFDet->RegisterPrimitive(new MyPSEnergyDeposit("eDep"));
+//	SetSensitiveDetector(lv_pBox2, MFDet);
+}
+
+
+
+
+
+
+
+
+
+
 
 

@@ -50,6 +50,18 @@ class SteppingAction : public G4UserSteppingAction
     virtual void UserSteppingAction(const G4Step*);
 
   private:
+    G4int fCollID_eKinE;
+    G4int fCollID_eDep;
+
+    G4int eCopyNo;
+    G4double eKinE;
+    G4int secondaryCount;
+
+    std::map<G4int, G4double> eKEdepMap;
+
+    G4int trackID, eventID;
+
+
 
 };
 

@@ -32,6 +32,7 @@
 #include "RunAction.hh"
 #include "EventAction.hh"
 #include "SteppingAction.hh"
+#include "StackingAction.hh"
 
 ActionInitialization::ActionInitialization()
  : G4VUserActionInitialization()
@@ -53,9 +54,12 @@ void ActionInitialization::Build() const
 {
 	SetUserAction(new PrimaryGeneratorAction());
 
-	SetUserAction(new RunAction());
-	SetUserAction(new EventAction());
+	SetUserAction(new StackingAction());
 	SetUserAction(new SteppingAction());
+	SetUserAction(new EventAction());
+	SetUserAction(new RunAction());
+
+
 }  
 
 

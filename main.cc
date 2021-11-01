@@ -30,6 +30,9 @@
 #include "DetectorConstruction.hh"
 #include "ActionInitialization.hh"
 
+#include "ParallelWorld.hh"
+#include "G4ParallelWorldPhysics.hh"
+
 #include "G4RunManagerFactory.hh"
 
 #include "G4UImanager.hh"
@@ -51,16 +54,18 @@ int main(int argc,char** argv)
 
 	// Choose the Random engine
 	G4Random::setTheEngine(new CLHEP::RanecuEngine);
-	G4Random::setTheSeed(time(NULL));
+	G4Random::setTheSeed(1000);
 
 	// Set mandatory initialization classes
 	//
 	// Detector construction
-	runManager->SetUserInitialization(new DetectorConstruction());
+	DetectorConstruction* det = new DetectorConstruction();
+	det->RegisterParallelWorld(new ParallelWorld("parallel"));
+	runManager->SetUserInitialization(det);
 
 	// Physics list
 	G4VModularPhysicsList* physicsList = new FTFP_BERT;
-	physicsList->SetVerboseLevel(1);
+	physicsList->RegisterPhysics(new G4ParallelWorldPhysics("parallel", true));
 	runManager->SetUserInitialization(physicsList);
 
 	// User action initialization

@@ -24,60 +24,90 @@
 // ********************************************************************
 //
 //
-/// \file DetectorConstruction.cc
-/// \brief Implementation of the DetectorConstruction class
+/// \file MyHit.cc
+/// \brief Implementation of the MyHit class
 
-#include "DetectorConstruction.hh"
-
-#include "G4RunManager.hh"
-#include "G4NistManager.hh"
-#include "G4LogicalVolume.hh"
-#include "G4PVPlacement.hh"
-#include "G4SystemOfUnits.hh"
+#include "MyHit.hh"
+#include "G4UnitsTable.hh"
+#include "G4VVisManager.hh"
+#include "G4Circle.hh"
+#include "G4Colour.hh"
 #include "G4VisAttributes.hh"
 
-#include "G4Box.hh"
+#include <iomanip>
 
+G4ThreadLocal G4Allocator<MyHit>* MyHitAllocator = 0;
 
+MyHit::MyHit()
+ : G4VHit(),
+   fTrackID(-1),
+   fHitCopyNo(-1),
+   fkEdep(0.),
+   fPos(G4ThreeVector())
+{}
 
-DetectorConstruction::DetectorConstruction()
-: G4VUserDetectorConstruction(),
-  lv_world(0), pv_world(0)
-{ }
-
-
-
-DetectorConstruction::~DetectorConstruction()
-{ }
-
-
-
-G4VPhysicalVolume* DetectorConstruction::Construct()
+MyHit::MyHit(const MyHit& right)
+  : G4VHit()
 {
-	SetupWorldGeometry();
-
-//	G4VSolid* sol_Box = new G4Box("sol_Box", 0.5*m, 0.5*m, 0.5*m);
-//	G4LogicalVolume* lv_Box = new G4LogicalVolume(sol_Box, G4NistManager::Instance()->FindOrBuildMaterial("G4_WATER"), "lv_Box");
-//	lv_Box->SetVisAttributes(new G4VisAttributes(G4Colour(1.0,1.0,0.0,0.5)));
-//	new G4PVPlacement(0, G4ThreeVector(), lv_Box, "pv_Box", lv_world, false, 10);
-
-
-  return pv_world;
+	fTrackID    = right.fTrackID;
+	fHitParName = right.fHitParName;
+	fHitCopyNo  = right.fHitCopyNo;
+	fkEdep      = right.fkEdep;
+	fPos        = right.fPos;
 }
 
-void DetectorConstruction::SetupWorldGeometry()
-{
-	// Define the world box (size: 10*10*5 m3)
-	G4double world_halfX = 5. * m;
-	G4double world_halfY = 5. * m;
-	G4double world_halfZ = 2.5 * m;
+MyHit::~MyHit() {}
 
-	G4VSolid* sol_world = new G4Box("sol_world", world_halfX, world_halfY, world_halfZ);
-	lv_world = new G4LogicalVolume(sol_world, G4NistManager::Instance()->FindOrBuildMaterial("G4_AIR"), "lv_world");
-	pv_world = new G4PVPlacement(0, G4ThreeVector(), lv_world, "pv_world", 0, false, 0, false);
-	G4VisAttributes* va_world = new G4VisAttributes(G4Colour(1.0,1.0,1.0));
-	va_world->SetForceWireframe(true);
-	lv_world->SetVisAttributes(va_world);
+const MyHit& MyHit::operator=(const MyHit& right)
+{
+	fTrackID    = right.fTrackID;
+	fHitParName = right.fHitParName;
+	fHitCopyNo  = right.fHitCopyNo;
+	fkEdep      = right.fkEdep;
+	fPos        = right.fPos;
+
+	return *this;
 }
+
+
+
+G4bool MyHit::operator==(const MyHit& right) const
+{
+	return ( this == &right ) ? true : false;
+}
+
+
+
+void MyHit::Draw()
+{
+	G4VVisManager* pVVisManager = G4VVisManager::GetConcreteInstance();
+	G4cout << pVVisManager << G4endl;
+	if (pVVisManager) {
+		G4Circle circle(fPos);
+		circle.SetScreenSize(4.);
+		circle.SetFillStyle(G4Circle::filled);
+		circle.SetVisAttributes(G4Colour(1.,0.,0.));
+		pVVisManager->Draw(circle);
+	}
+
+}
+
+void MyHit::Print()
+{
+	G4cout << "Particle: " << fHitParName
+		   << ", Copy #: " << fHitCopyNo
+		   << ", pos:" << G4BestUnit(fPos,"Length")
+		   << ", kEdep: " << G4BestUnit(fkEdep,"Energy") << G4endl;
+}
+
+
+
+
+
+
+
+
+
+
 
 
